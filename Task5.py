@@ -17,39 +17,39 @@ nodes_s_outgoing_links = {
 }
 
 # словарь кол-ва исходящих ссылок
-outgoing_count = {key: len(nodes_s_outgoing_links[key]) for key in nodes_s_outgoing_links}
+outgoing_links_count = {key: len(nodes_s_outgoing_links[key]) for key in nodes_s_outgoing_links}
 
 # матрица смежности
 pages = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
 index = {page: i for i, page in enumerate(pages)}
 
 # создаём матрицу ссылок...
-link_matrix = np.zeros((n, n))
+matrix_of_links = np.zeros((n, n))
 
 # ...и заполняем её
 for page, links in nodes_s_outgoing_links.items():
     i = index[page]
     for link in links:
         j = index[link]
-        link_matrix[j, i] = 1 / outgoing_count[page]
+        matrix_of_links[j, i] = 1 / outgoing_links_count[page]
 
 # инициализируем значения рейтинга PageRank
-rank = np.ones(n) / n
+pagerank = np.ones(n) / n
 
-# тут будем хранить значения на каждой итерации
+# тут будем хранить историю значений на каждой итерации
 history = np.zeros((k, n))
 
 # итерируем алгоритм ранжирования k раз
-for iteration in range(k):
+for it in range(k):
     # рассчитываем новый вектор значений
-    rank = (1 - d) / n + d * link_matrix @ rank
+    pagerank = (1 - d) / n + d * matrix_of_links @ pagerank
     # сохраняем значения в историю
-    history[iteration] = rank
+    history[it] = pagerank
 
 # округляем финальные значения авторитетностей до двух знаков и выводим на экран
-final_ranks = {page: round(rank[index[page]], 2) for page in pages}
-print("Финальные значения авторитетностей:")
-for page, score in final_ranks.items():
+final_pagerank_ranks = {page: round(pagerank[index[page]], 2) for page in pages}
+print("Финальные значения авторитетностей PageRank:")
+for page, score in final_pagerank_ranks.items():
     print(f"{page}: {score}")
 
 # строим график
@@ -57,7 +57,6 @@ plt.figure(figsize=(10, 6))
 for i, page in enumerate(pages):
     plt.plot(history[:, i], label=f'Страница {page}')
 
-# здесь всё и так ясно
 plt.title("Изменение авторитетности страниц при k = 1000 итерациях")
 plt.xlabel("Итерации")
 plt.ylabel("Оценка алгоритма PageRank")
